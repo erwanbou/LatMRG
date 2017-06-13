@@ -134,8 +134,8 @@ protected:
     * Initializes this object when the lattice type is `ORBIT`.
     */
    void initOrbit();
-   void insertion (BVect & Sta);
-   void lemme2 (BVect & Sta);
+   void insertion (BMat & Sta);
+   void lemme2 (BMat & Sta);
 
    /**
     * For debugging purposes.

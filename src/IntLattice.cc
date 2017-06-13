@@ -24,17 +24,13 @@ namespace LatMRG
 
 IntLattice::IntLattice ( MScal modulo, int k, int maxDim, NormType norm ):
    IntLatticeBasis(maxDim, norm)
-{
-   m_dim = maxDim;
-   m_withDual = true;
-   m_modulo = modulo;
-   m_order = k;
-   init ();
-   m_dualbasis.resize(m_dim,m_dim);
-   m_withDual = true;
-   m_dualvecNorm.resize(m_dim);
-   setDualNegativeNorm();
-}
+   {
+      m_dim = maxDim;
+      m_withDual = true;
+      m_modulo = modulo;
+      m_order = k;
+      init ();
+   }
 
 //=========================================================================
 
@@ -49,36 +45,34 @@ IntLattice::IntLattice (const IntLattice & Lat):
    init ();
 }
 
+
 //=========================================================================
 
 
 void IntLattice::init ()
 {
    int dim = getDim ();
-   IntLatticeBasis::initVecNorm();
+   kill ();
    double temp;
    conv (temp, m_modulo);
-
    m_lgVolDual2 = new double[dim];
    m_lgm2 = 2.0 * Lg (temp);
    m_lgVolDual2[0] = m_lgm2;
    m_vSI.resize(dim, dim);
    m_wSI.resize(dim, dim);
-
 }
 
 //=========================================================================
 
 void IntLattice::kill ()
 {
-   IntLatticeBasis::kill();
-
    if (m_lgVolDual2 == 0)
       return;
    delete [] m_lgVolDual2;
    m_lgVolDual2 = 0;
    m_vSI.clear();
 
+   IntLatticeBasis::kill();
    if (!comp.empty()) {
       for (int s = 0; s < (int) comp.size(); s++)
          delete comp[s];

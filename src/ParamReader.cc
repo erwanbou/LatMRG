@@ -91,7 +91,7 @@ void ParamReader::getToken(string& field, unsigned int ln, unsigned int pos)
       << ln << endl;
       field.clear();
    } else
-      field = tokens[pos];
+      field = tokens[pos - 1];
    return;
 }
 
@@ -311,7 +311,7 @@ void ParamReader::readBScal(BScal& field, unsigned int ln, int pos)
 void ParamReader::readMVect(MVect & fields, unsigned int & ln, unsigned int pos,
    unsigned int numPos, int j)
 {
-   for (unsigned int i = pos; i < numPos; i++) {
+   for (unsigned int i = pos; i <= numPos; i++) {
       readMScal(fields[j], ln, i);
       j++;
    }
@@ -322,7 +322,7 @@ void ParamReader::readMVect(MVect & fields, unsigned int & ln, unsigned int pos,
 void ParamReader::readIntVect (int* fields, unsigned int ln, unsigned int pos,
                                unsigned int num, int j)
 {
-   for (unsigned int i = pos; i < num; i++) {
+   for (unsigned int i = pos; i <= num; i++) {
       readInt(fields[j], ln, i);
       j++;
    }
@@ -551,10 +551,10 @@ void ParamReader::readLacunary(int ordre, int fromDim, int toDim,
    unsigned int & ln, bool & lacunary, int & lacGroupSize, NTL::ZZ & lacSpacing,
    BVect & Lac, GenType genType)
 {
-   readInt (lacGroupSize, ++ln, 0);
+   readInt (lacGroupSize, ++ln, 1);
    const int t = lacGroupSize;
    if (t > 0)
-      readZZ(lacSpacing, ln, 1);
+      readZZ(lacSpacing, ln, 2);
 
    if (((t == 1) && (lacSpacing == 1)) || (t > toDim)) {
       lacunary = false;
@@ -569,8 +569,8 @@ void ParamReader::readLacunary(int ordre, int fromDim, int toDim,
    CreateVect (Lac, toDim);
    int i;
    if (t < 0) {
-      for (i = 0; i < toDim; i++)
-         readBScal (Lac[i], ++ln, 0);
+      for (i = 1; i <= toDim; i++)
+         readBScal (Lac[i], ++ln, 1);
       return;
    }
 
@@ -582,7 +582,7 @@ void ParamReader::readLacunary(int ordre, int fromDim, int toDim,
    i = 1;
    while (true) {
       for (int j = 0; j < t; j++) {
-         if (i < toDim) {
+         if (i <= toDim) {
             conv (Lac[i], Q + j);
             i++;
          } else
@@ -597,7 +597,7 @@ void ParamReader::readLacunary(int ordre, int fromDim, int toDim,
 
 bool ParamReader::checkBound (const MScal & m, const MVect & A, int k)
 {
-   for (int i = 0; i < k; i++) {
+   for (int i = 1; i <= k; i++) {
       assert (A[i] < m);
       assert (A[i] > -m);
    }

@@ -65,7 +65,7 @@ void ReportHeaderLat::printHeader ()
 
       if (m_config->comp[i]->k < 13) {
          // Write all coefficients of a
-         for (int ii = 0; ii < m_config->comp[i]->k; ii++) {
+         for (int ii = 1; ii <= m_config->comp[i]->k; ii++) {
             m_writer->writeString ("      a_");
             m_writer->writeInt (ii);
             m_writer->writeString (" = ");
@@ -74,7 +74,7 @@ void ReportHeaderLat::printHeader ()
          }
       } else {
          // Write only the non-zero coefficients of a
-         for (int ii = 0; ii < m_config->comp[i]->k; ii++) {
+         for (int ii = 1; ii <= m_config->comp[i]->k; ii++) {
             if (0 != m_config->comp[i]->a[ii]) {
                m_writer->writeString ("      a_");
                m_writer->writeInt (ii);

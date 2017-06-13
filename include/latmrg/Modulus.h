@@ -79,14 +79,14 @@ Modulus (const MScal & m);
     * otherwise, the flag is set `false`.
     */
    bool threeF;
-   long b;
+long b;
    long e;
 
-   /**
-    * When `threeF` is `true`, then \f$m\f$ is given in the form \f$m = b^e +
-    * c\f$; otherwise, \f$b\f$, \f$e\f$ and \f$c\f$ are undefined.
-    */
-   long c;
+/**
+ * When `threeF` is `true`, then \f$m\f$ is given in the form \f$m = b^e +
+ * c\f$; otherwise, \f$b\f$, \f$e\f$ and \f$c\f$ are undefined.
+ */
+long c;
 
    /**
     * \f$\sqrt{\lfloor m \rfloor}\f$.
@@ -97,7 +97,6 @@ Modulus (const MScal & m);
     * \f$-\sqrt{\lfloor m \rfloor}\f$.
     */
    MScal mRacNeg;
-
 private:
 
 /**

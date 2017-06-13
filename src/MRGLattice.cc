@@ -119,7 +119,6 @@ MRGLattice::MRGLattice(const MScal & m, const MVect & a, int maxDim, int k,
    m_ip = new bool[1];
    init();
 
-
    for (int i = 0; i < m_order; i++)
       m_aCoef[i] = a[i];
 }
@@ -144,7 +143,7 @@ MRGLattice::MRGLattice(const MScal & m, const MVect & a, int maxDim, int k,
 void MRGLattice::init()
 {
    kill();
-   IntLattice::init();
+   IntLatticeBasis::initVecNorm();
    m_xi.SetLength(m_order);
    m_aCoef.SetLength(m_order);
    if (m_order > ORDERMAX) {
@@ -468,8 +467,6 @@ void MRGLattice::initStates ()
  * groupe d'états considérés.
  */
 {
-   BVect statmp;
-   statmp.resize(m_order); // Stocks variables
    int maxDim = getDim();
    //clear (m_t2);
 
@@ -503,15 +500,15 @@ MyExit (1, "case ORBIT is not finished");
          MVect InSta;
          MScal inStatmp;
          InSta.SetLength (m_order);
-         clear (statmp[m_order-1]);
+         clear (m_sta[0][m_order]);
          for (int i = 0; i < m_order; i++) {
-            InSta[0] = m_aCoef[i] * InSta[m_order - i - 1];
-            statmp[m_order-1] += InSta[0];
+            inStatmp = m_aCoef[i] * InSta[m_order - i - 1];
+            m_sta[0][m_order-1] += inStatmp;
          }
 
-         statmp[m_order-1] -= InSta[m_order];
-         for (int i = 0; i < m_order; i++)
-            statmp[i] = InSta[i+1] - InSta[i];
+         m_sta[0][m_order] -= InSta[m_order];
+         for (int i = 1; i < m_order; i++)
+            m_sta[0][i] = InSta[i] - InSta[i - 1];
          InSta.kill();
 
       } else if (m_latType == RECURRENT) {
@@ -545,7 +542,7 @@ MyExit (1, "case ORBIT is not finished");
          pol.powerMod(m_e);
          pol.toVector (m_xi);
 
-         statmp[0] = m_xi[m_order - 1];
+         m_sta[0][1] = m_xi[m_order - 1];
          for (int i = 2; i <= m_order; i++) {
             // Multiplier m_xi par X et reduire mod X^k - a1 X^{k-1} - ....
 
@@ -561,45 +558,45 @@ MyExit (1, "case ORBIT is not finished");
             }
             // Coeff. constant.
             m_xi[0] = MulMod (m_xi[m_order], m_aCoef[m_order], m_modulo);
-            statmp[i] = m_xi[m_order - 1];
+            m_sta[0][i] = m_xi[m_order - 1];
          }
       }
 
-      for (int i = 0; i < m_order; i++) {
-         for (int j = 0; j < m_order; j++)
+      for (int i = 1; i <= m_order; i++) {
+         for (int j = 1; j <= m_order; j++)
             clear (m_sta[i][j]);
          m_ip[i] = false;
-         m_sta[i][0] = statmp[i];
+         m_sta[i][0] = m_sta[0][i];
       }
-      insertion (statmp);
+      insertion (m_sta);
 
-      for (int k = 1; k < m_order; k++) {
+      for (int k = 2; k <= m_order; k++) {
          // On passe a l'etat suivant.
-         for (int j = 0; j < m_order-1; j++)
-            statmp[j] = m_sta[j + 1][0];
-         clear (statmp[m_order-1]);
-         for (int i = 0; i < m_order; i++) {
+         for (int j = 1; j < m_order; j++)
+            m_sta[0][j] = m_sta[j + 1][0];
+         clear (m_sta[0][m_order]);
+         for (int i = 1; i <= m_order; i++) {
             m_t1 = m_aCoef[i] * m_sta[m_order - i + 1][0];
-            statmp[m_order-1] += m_t1;
+            m_sta[0][m_order] += m_t1;
          }
-         Modulo(statmp[m_order-1], m_modulo, statmp[m_order-1]);
+         Modulo(m_sta[0][m_order], m_modulo, m_sta[0][m_order]);
          // On memorise l'etat suivant.
-         for (int i = 0; i < m_order-1; i++)
+         for (int i = 1; i < m_order; i++)
             swap (m_sta[i][0], m_sta[i + 1][0]);
 
-         m_sta[m_order-1][0] = statmp[m_order-1];
-         insertion (statmp);
+         m_sta[m_order][0] = m_sta[0][m_order];
+         insertion (m_sta);
       }
 
-      lemme2 (statmp);
+      lemme2 (m_sta);
 
       // Calcul de lgVolDual2
       double x;
       if (m_ip[1]) {
-         conv(x, m_modulo / m_sta[0][0]);
-         m_lgVolDual2[0] = 2.0 * Lg (x);
+         conv(x, m_modulo / m_sta[1][1]);
+         m_lgVolDual2[1] = 2.0 * Lg (x);
       } else
-         m_lgVolDual2[0] = 0.0;
+         m_lgVolDual2[1] = 0.0;
 
       int rmax = min(m_order, maxDim);
       for (int r = 2; r <= rmax; r++) {
@@ -618,7 +615,7 @@ MyExit (1, "case ORBIT is not finished");
 
 //===========================================================================
 
-void MRGLattice::insertion (BVect & statmp)
+void MRGLattice::insertion (BMat & sta)
 /*
  * Cette procedure insere le vecteur Sta[0] dans la matrice triangulaire
  * Sta. Si IP[i] = TRUE, l'entree diagonale sur la i-ieme ligne de Sta est
@@ -627,29 +624,29 @@ void MRGLattice::insertion (BVect & statmp)
  * Le vecteur Sta[0] est altere au cours de l'operation.
  */
 {
-   for (int j = 0; j < m_order; j++) {
-      Modulo (statmp[j], m_modulo, statmp[j]);
-      if (!IsZero (statmp[j])) {
+   for (int j = 1; j <= m_order; j++) {
+      Modulo (sta[0][j], m_modulo, sta[0][j]);
+      if (!IsZero (sta[0][j])) {
          if (!m_ip[j]) {
-            Euclide (statmp[j], m_modulo, m_t1, m_t2, m_t3, m_t4, m_sta[j][j]);
-            for (int i = j + 1; i < m_order; i++) {
-               m_sta[j][i] = m_t1 * statmp[i];
-               Modulo (m_sta[j][i], m_modulo, m_sta[j][i]);
+            Euclide (sta[0][j], m_modulo, m_t1, m_t2, m_t3, m_t4, sta[j][j]);
+            for (int i = j + 1; i <= m_order; i++) {
+               sta[j][i] = m_t1 * sta[0][i];
+               Modulo (sta[j][i], m_modulo, sta[j][i]);
             }
             m_ip[j] = true;
             return;
 
          } else {
-            Euclide (m_sta[j][j], statmp[j], m_t1, m_t2, m_t3, m_t4, m_sta[j][j]);
-            clear (statmp[j]);
-            for (int i = j + 1; i < m_order; i++) {
-               m_t5 = m_t1 * m_sta[j][i];
-               m_t6 = m_t2 * statmp[i];
-               m_t7 = m_t3 * m_sta[j][i];
-               m_t8 = m_t4 * statmp[i];
-               m_sta[j][i] = m_t5 + m_t6;
-               Modulo (m_sta[j][i], m_modulo, m_sta[j][i]);
-               statmp[i] = m_t7 + m_t8;
+            Euclide (sta[j][j], sta[0][j], m_t1, m_t2, m_t3, m_t4, sta[j][j]);
+            clear (sta[0][j]);
+            for (int i = j + 1; i <= m_order; i++) {
+               m_t5 = m_t1 * sta[j][i];
+               m_t6 = m_t2 * sta[0][i];
+               m_t7 = m_t3 * sta[j][i];
+               m_t8 = m_t4 * sta[0][i];
+               sta[j][i] = m_t5 + m_t6;
+               Modulo (sta[j][i], m_modulo, sta[j][i]);
+               sta[0][i] = m_t7 + m_t8;
             }
          }
       }
@@ -659,7 +656,7 @@ void MRGLattice::insertion (BVect & statmp)
 
 //===========================================================================
 
-void MRGLattice::lemme2 (BVect & statmp)
+void MRGLattice::lemme2 (BMat & sta)
 /*
  * Cette procedure suppose que la matrice Sta est triangulaire. Si
  * IP[i] = TRUE, l'entree diagonale sur la i-ieme ligne de Sta est
@@ -667,17 +664,17 @@ void MRGLattice::lemme2 (BVect & statmp)
  * identiquement nulle.
  */
 {
-   for (int i = 0; i < m_order; i++) {
+   for (int i = 1; i <= m_order; i++) {
       if (m_ip[i]) {
-         Quotient (m_modulo, m_sta[i][i], m_t1);
+         Quotient (m_modulo, sta[i][i], m_t1);
          m_t1 = abs (m_t1);
          if (m_t1 < m_modulo) {
-            for (int j = 0; j < i; j++)
-               statmp[j] = m_sta[i][j];
-            clear (m_sta[0][i]);
-            for (int j = i + 1; j < m_order; j++)
-               statmp[j] = m_t1 * m_sta[i][j];
-            insertion (statmp);
+            for (int j = 1; j < i; j++)
+               sta[0][j] = sta[i][j];
+            clear (sta[0][i]);
+            for (int j = i + 1; j <= m_order; j++)
+               sta[0][j] = m_t1 * sta[i][j];
+            insertion (sta);
          }
       }
    }

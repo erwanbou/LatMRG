@@ -166,6 +166,7 @@ bool LatTestSpectral::test (int fromDim, int toDim, double minVal[], const doubl
    }
    Reducer red (*m_lat);
 
+
    if (m_S2toL2[fromDim] <= 0.0)
       initLowerBoundL2 (fromDim, toDim);
    setLowerBoundL2 (minVal[toDim], weights);   // same S2 for all dim

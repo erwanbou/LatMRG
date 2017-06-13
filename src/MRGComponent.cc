@@ -29,9 +29,9 @@ MRGComponent::MRGComponent (const MScal & m, const MVect & a0, int k0)
    PolyPE::setM(m);
    module.init(m);
    k = k0;
-   a.SetLength(k);
+   a.SetLength(k + 1);
    CopyVect(a0, a, k);
-   orbitSeed.SetLength(k);
+   orbitSeed.SetLength(k + 1);
 }
 
 
@@ -43,9 +43,9 @@ MRGComponent::MRGComponent (long p, long e, long c, const MVect & a0, int k0)
    module.init(p, e, c);
    PolyPE::setM(getM());
    k = k0;
-   a.SetLength(k);
+   a.SetLength(k + 1);
    CopyVect(a0, a, k);
-   orbitSeed.SetLength(k);
+   orbitSeed.SetLength(k + 1);
 }
 
 

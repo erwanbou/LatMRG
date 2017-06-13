@@ -1,8 +1,8 @@
 #
 # To use this makefile, you have to:
-#       - [line 19, 24] Modifie include and library paths
-#       - [line 32} Modifie the path for main.cc if it is not in src folder, and update .cc list
-# 'make depend' uses makedepend to automatically generate dependencies
+#		- [line 19, 24] Modifie include and library paths
+#		- [line 32} Modifie the path for main.cc if it is not in src folder, and update .cc list 
+# 'make depend' uses makedepend to automatically generate dependencies 
 #               (dependencies are added to end of Makefile)
 # 'make'        build executable file 'mycc'
 # 'make clean'  removes all .o and executable files
@@ -17,50 +17,50 @@ CFLAGS = -std=c++11 -g -Wall
 # define any directories containing header files other than /usr/include
 ##INCLUDES = -I../include -I/u/simul/opt/boost-1.60.0/include -I/u/jemelaym/Code/ntl/include
 INCLUDES = \
--I/Users/Erwan1/projects/github/LatMRG/include \
--I/Users/Erwan1/projects/github/Lattice\ Tester/include \
--I/Users/Erwan1/projects/github/Lattice\ Tester \
+-I/Users/paulwambergue/UdeM/latmrg/include \
+-I/Users/paulwambergue/UdeM/latticetester/include \
+-I/Users/paulwambergue/UdeM/latticetester \
 -I/usr/local/include \
--I/usr/local/Cellar/NTL \
--I/usr/local/Cellar/boost/1.60.0_2/include
+-I/usr/local/Cellar/ntl-10.3.0/include \
+-I/usr/local/Cellar/boost/1.64.0/include
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
 LFLAGS = \
 -L/usr/local/lib/ \
--L/usr/local/Cellar/boost/1.60.0_2/lib/
+-L/usr/local/Cellar/boost/1.64.0/lib/
 
 # define any libraries to link into executable:
-#   if I want to link in libraries (libx.so or libx.a) I use the -llibname
+#   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
 LIBS = -lntl -lgmp -lm -ltestu01 -lmylib
 
 # define the C source files
-SRCS = LatMain.cc \
+SRCS = main.cc \
 \
-../Lattice\ Tester/SimpleMRG.cc \
-../Lattice\ Tester/src/IntLatticeBasis.cc \
-../Lattice\ Tester/src/Const.cc \
-../Lattice\ Tester/src/CoordinateSets.cc \
-../Lattice\ Tester/src/Coordinates.cc \
-../Lattice\ Tester/src/IntFactor.cc \
-../Lattice\ Tester/src/Lacunary.cc \
-../Lattice\ Tester/src/NormaBestLat.cc \
-../Lattice\ Tester/src/NormaLaminated.cc \
-../Lattice\ Tester/src/NormaMinkL1.cc \
-../Lattice\ Tester/src/NormaMinkowski.cc \
-../Lattice\ Tester/src/NormaPalpha.cc \
-../Lattice\ Tester/src/NormaRogers.cc \
-../Lattice\ Tester/src/Normalizer.cc \
-../Lattice\ Tester/src/Num.cc \
-../Lattice\ Tester/src/OrderDependentWeights.cc \
-../Lattice\ Tester/src/PODWeights.cc \
-../Lattice\ Tester/src/ProductWeights.cc \
-../Lattice\ Tester/src/ProjectionDependentWeights.cc \
-../Lattice\ Tester/src/Random.cc \
-../Lattice\ Tester/src/Reducer.cc \
-../Lattice\ Tester/src/Util.cc \
+../latticetester/SimpleMRG.cc \
+../latticetester/src/IntLatticeBasis.cc \
+../latticetester/src/Const.cc \
+../latticetester/src/CoordinateSets.cc \
+../latticetester/src/Coordinates.cc \
+../latticetester/src/IntFactor.cc \
+../latticetester/src/Lacunary.cc \
+../latticetester/src/NormaBestLat.cc \
+../latticetester/src/NormaLaminated.cc \
+../latticetester/src/NormaMinkL1.cc \
+../latticetester/src/NormaMinkowski.cc \
+../latticetester/src/NormaPalpha.cc \
+../latticetester/src/NormaRogers.cc \
+../latticetester/src/Normalizer.cc \
+../latticetester/src/Num.cc \
+../latticetester/src/OrderDependentWeights.cc \
+../latticetester/src/PODWeights.cc \
+../latticetester/src/ProductWeights.cc \
+../latticetester/src/ProjectionDependentWeights.cc \
+../latticetester/src/Random.cc \
+../latticetester/src/Reducer.cc \
+../latticetester/src/Util.cc \
 \
 ./src/AverageCaseMerit.cc \
 ./src/HyperplaneDistanceMerit.cc \
@@ -118,13 +118,13 @@ SRCS = LatMain.cc \
 ./src/LatTestSpectral.cc \
 ./src/Palpha.cc \
 ./src/ProjIteratorNonSuccCoords.cc \
-./src/ShortestDualVectorMerit.cc
+./src/ShortestDualVectorMerit.cc \
 
 #../latticetester/src/Basis.cc \
 ../latticetester/src/IntLattice.cc \
 ../latticetester/src/Rank1Lattice.cc \
 
-# define the C object files
+# define the C object files 
 #
 # This uses Suffix Replacement within a macro:
 #   $(name:string1=string2)
@@ -134,34 +134,34 @@ SRCS = LatMain.cc \
 #
 OBJS = $(SRCS:.c=.o)
 
-# define the executable file
+# define the executable file 
 MAIN = main
 
 #
-# The following part of the makefile is generic; it can be used to
+# The following part of the makefile is generic; it can be used to 
 # build any executable just by changing the definitions above and by
 # deleting dependencies appended to the file from 'make depend'
 #
 
-.PHONY:	depend clean
+.PHONY: depend clean
 
-all:	$(MAIN)
-	@echo  Simple compiler named mycc has been compiled
+all:    $(MAIN)
+		@echo  Simple compiler named mycc has been compiled
 
-$(MAIN): $(OBJS)
-	$(CXX) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
+$(MAIN): $(OBJS) 
+		$(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
-# the rule(a .c file) and $@: the name of the target of the rule (a .o file)
+# the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
 # (see the gnu make manual section about automatic variables)
 .c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+		$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
-	$(RM) *.o *~ $(MAIN)
+		$(RM) *.o *~ $(MAIN)
 
 depend: $(SRCS)
-	makedepend $(INCLUDES) $^
+		makedepend $(INCLUDES) $^
 
 # DO NOT DELETE THIS LINE -- make depend needs it
